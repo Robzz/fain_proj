@@ -6,3 +6,7 @@ TP2_img1.pbm
 plot
 sujet
 image2.jpg
+*swp
+obj/*
+bin/*
+.ycm*
