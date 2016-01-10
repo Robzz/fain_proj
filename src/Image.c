@@ -16,6 +16,10 @@ float Color::red() const { return _red; }
 float Color::green() const { return _green; }
 float Color::blue() const { return _blue; }
 
+bool Color::operator==(Color const& other) {
+    return (_red == other._red && _green == other._green && _blue == other._blue);
+}
+
 //------------------------------------------------------------------------
 
 void C_check(Color c, char *message)

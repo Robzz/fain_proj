@@ -24,6 +24,9 @@ class Color {
         void set_green(float g);
         float blue() const;
         void set_blue(float b);
+
+        bool operator==(Color const& other);
+
     private:
         float _red, _green, _blue;
 }; 

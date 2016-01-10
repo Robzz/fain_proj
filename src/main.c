@@ -22,7 +22,7 @@
 #include "draw.h"
 #include "vector.h"
 
-typedef enum { LINES, CIRCLES } Mode;
+typedef enum { LINES, CIRCLES, FILL_RECURSIVE } Mode;
 typedef enum { IDLE, DRAWING } State;
 
 Mode mode = LINES;
@@ -40,6 +40,10 @@ void change_mode(Mode m) {
             mode = CIRCLES;
             state = IDLE;
             printf("Mode set to circles.\n");
+            break;
+        case FILL_RECURSIVE:
+            mode = FILL_RECURSIVE;
+            printf("Mode set to recursive seed-fill.\n");
             break;
     }
 }
@@ -106,6 +110,10 @@ void mouse_CB(int button, int button_state, int x, int y) {
                     draw_circle_bresenham(img, x1, y1, r);
                 }
                 break;
+            case FILL_RECURSIVE:
+                printf("Filling recursively area at (%d, %d)\n", x, y);
+                seed_fill_recursive(img, x, y, img->_buffer[x][y], img->_current_color);
+                break;
         }
     }
 
@@ -127,6 +135,8 @@ void keyboard_CB(unsigned char key, int x, int y)
         case 's': change_mode(LINES); break;
         case 'C':
         case 'c': change_mode(CIRCLES); break;
+        case 'R':
+        case 'r': change_mode(FILL_RECURSIVE); break;
 	case 'z' : I_zoom(img,2.0); break;
 	case 'Z' : I_zoom(img,0.5); break;
 	case 'i' : I_zoomInit(img); break;

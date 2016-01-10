@@ -62,3 +62,14 @@ void draw_circle_bresenham(Image* img, int Ox, int Oy, int radius) {
         plot(-y, x); plot(-y, -x);
     }
 }
+
+void seed_fill_recursive(Image* img, int x, int y, Color old, Color _new) {
+    if(img->_buffer[x][y] == old) {
+        img->_buffer[x][y] = _new;
+        seed_fill_recursive(img, x+1, y    , old, _new);
+        seed_fill_recursive(img, x-1, y    , old, _new);
+        seed_fill_recursive(img, x  , y + 1, old, _new);
+        seed_fill_recursive(img, x  , y - 1, old, _new);
+    }
+}
+
