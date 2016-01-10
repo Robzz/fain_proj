@@ -15,7 +15,7 @@ EXEC=plot
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 
-all: $(BIN_DIR)/$(EXEC)
+all: dirs $(BIN_DIR)/$(EXEC)
 
 $(BIN_DIR)/$(EXEC) : $(OBJ_DIR)/main.o $(OBJ_DIR)/Image.o $(OBJ_DIR)/Ppm.o $(OBJ_DIR)/draw.o
 	$(CC) $^ -o $@ $(LDFLAGS)
@@ -43,4 +43,10 @@ $(OBJ_DIR)/bresenham.o: $(TESTS_SRC_DIR)/bresenham.c
 clean :
 	rm $(BIN_DIR)/* $(OBJ_DIR)/*.o
 
-.PHONY: all clean tests
+archive:
+	tar -acf chavignat_projet_fain.tar.gz src include Makefile tests
+
+dirs:
+	mkdir -p obj bin
+
+.PHONY: all clean tests archive dirs

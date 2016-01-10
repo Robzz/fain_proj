@@ -10,3 +10,4 @@ image2.jpg
 obj/*
 bin/*
 .ycm*
+*.tar.gz
