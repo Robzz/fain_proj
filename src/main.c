@@ -182,10 +182,10 @@ int main(int argc, char **argv)
 			largeur = atoi(argv[1]);
 			hauteur = atoi(argv[2]);
 			img = I_new(largeur,hauteur);
-			Color rouge = C_new(100,0,0);
-			Color blanc = C_new(200,200,255);
+			Color rouge(100,0,0);
+			Color blanc(200,200,255);
 			I_checker(img,rouge,blanc,50);
-                        I_changeColor(img, C_new(0, 0, 0));
+                        I_changeColor(img, Color(0, 0, 0));
 		}
 		int windowPosX = 100, windowPosY = 100;
 

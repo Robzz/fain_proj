@@ -15,12 +15,19 @@
 
 //-----------------------------------------------------
 
-typedef struct
-{
-	float _red, _green, _blue;
-} Color;
+class Color {
+    public:
+        Color(float r=0, float g=0, float b=0);
+        float red() const;
+        void set_red(float r);
+        float green() const;
+        void set_green(float g);
+        float blue() const;
+        void set_blue(float b);
+    private:
+        float _red, _green, _blue;
+}; 
 
-Color C_new(float red, float green, float blue);
 void C_check(Color c, char *message);
 
 //-----------------------------------------------------

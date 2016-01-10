@@ -44,7 +44,7 @@ typedef struct
 	int _nb_bits;
 } StructPpm, *Ppm;
 
-Ppm  PPM_nouv(char *ppmfilename, int lecture_ecriture);
+Ppm  PPM_nouv(const char *ppmfilename, int lecture_ecriture);
 void PPM_initEcriture(Ppm ppm, int type, int largeur, int hauteur, int nb_bytes);
 void PPM_check(Ppm ppm, char *message);
 int PPM_largeur(Ppm ppm);

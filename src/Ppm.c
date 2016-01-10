@@ -162,7 +162,7 @@ static void _ecritureEntete(Ppm ppm)
 
 //------------------------------------------------------
 
-Ppm PPM_nouv(char *ppmfilename, int lecture_ecriture)
+Ppm PPM_nouv(const char *ppmfilename, int lecture_ecriture)
 {
 	Ppm ppm;
 

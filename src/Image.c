@@ -6,22 +6,21 @@
 
 #include "Image.h"
 
-//------------------------------------------------------------------------
+Color::Color(float r, float g, float b) :
+    _red(r),
+    _green(g),
+    _blue(b)
+{ }
 
-Color C_new(float red, float green, float blue)
-{
-	Color c;
-	c._red = red;
-	c._green = green;
-	c._blue = blue;
-	return c;
-}
+float Color::red() const { return _red; }
+float Color::green() const { return _green; }
+float Color::blue() const { return _blue; }
 
 //------------------------------------------------------------------------
 
 void C_check(Color c, char *message)
 {
-	fprintf(stderr,"%s : %f %f %f\n",message,c._red,c._green,c._blue);
+	fprintf(stderr,"%s : %f %f %f\n",message,c.red(),c.green(),c.blue());
 }
 
 //------------------------------------------------------------------------
@@ -40,7 +39,7 @@ Image* I_new(int width, int height)
 	img_new->_xoffset=0;
 	img_new->_yoffset=0;
 
-	img_new->_current_color = C_new(255,255,255);
+	img_new->_current_color = Color(255,255,255);
 
 	img_new->_buffer = (Color**)calloc(width,sizeof(Color*));
 
@@ -118,9 +117,9 @@ Image* I_read(char *imagefilename)
 					for(x=0;x<img->_width;x++)
 					{
 						int indice = (img->_height-y)*img->_width + x;
-						Color c = C_new((1.0*donnees[3*indice  ])/valmax,
-										(1.0*donnees[3*indice+1])/valmax,
-										(1.0*donnees[3*indice+2])/valmax);
+						Color c((1.0*donnees[3*indice  ])/valmax,
+							(1.0*donnees[3*indice+1])/valmax,
+							(1.0*donnees[3*indice+2])/valmax);
 						_plot(img,x,y,c);
 					}
 			}
@@ -133,9 +132,9 @@ Image* I_read(char *imagefilename)
 					for(x=0;x<img->_width;x++)
 					{
 						int indice = (img->_height-y)*img->_width + x;
-						Color c = C_new((1.0*donnees[3*indice  ])/valmax,
-										(1.0*donnees[3*indice+1])/valmax,
-										(1.0*donnees[3*indice+2])/valmax);
+						Color c((1.0*donnees[3*indice  ])/valmax,
+							(1.0*donnees[3*indice+1])/valmax,
+							(1.0*donnees[3*indice+2])/valmax);
 						img->_buffer[x][y] = c;
 					}
 			}
@@ -280,9 +279,9 @@ void I_draw(Image *img)
 			   (yimg>=0)&&(yimg<img->_height))
 				c = img->_buffer[ximg][yimg];
 			else
-				c = C_new(0,0,0);
+				c = Color(0,0,0);
 
-			glColor3f(c._red,c._green,c._blue);
+			glColor3f(c.red(),c.green(),c.blue());
 			glVertex2i(xwin,ywin);
 		}
 	glEnd();
