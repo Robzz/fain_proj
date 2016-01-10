@@ -42,6 +42,10 @@ void draw_line_bresenham(Image* img, int Ax, int Ay, int Bx, int By) {
     }
 }
 
+void draw_line_bresenham(Image* img, Line const& l) {
+    draw_line_bresenham(img, l.p1().x(), l.p1().y(), l.p2().x(), l.p2().y());
+}
+
 void draw_circle_bresenham(Image* img, int Ox, int Oy, int radius) {
     int xc = Ox, yc = Oy, x = 0, y = radius, c = 3 - 2*radius;
     std::function<void(int, int)> plot = [&] (int x, int y) { I_plot(img, x + xc, y + yc); };
@@ -63,11 +67,15 @@ void draw_circle_bresenham(Image* img, int Ox, int Oy, int radius) {
     }
 }
 
-void draw_polygon(Image* img, std::vector<Vec2f> const& pts) {
-    for(auto it = pts.begin() ; it+1 != pts.end() ; ++it) {
+void draw_circle_bresenham(Image* img, Circle const& c) {
+    draw_circle_bresenham(img, c.center().x(), c.center().y(), c.radius());    
+}
+
+void draw_polygon(Image* img, Polygon const& p) {
+    for(auto it = p.begin() ; it+1 != p.end() ; ++it) {
         draw_line_bresenham(img, (*it).x(), (*it).y(), (*(it+1)).x(), (*(it+1)).y());
     }
-    draw_line_bresenham(img, pts.front().x(), pts.front().y(), pts.back().x(), pts.back().y());
+    draw_line_bresenham(img, p.first().x(), p.first().y(), p.last().x(), p.last().y());
 }
 
 void seed_fill_recursive(Image* img, int x, int y, Color old, Color _new) {

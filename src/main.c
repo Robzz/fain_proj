@@ -20,6 +20,7 @@
 #include <GL/gl.h>
 
 #include "Image.h"
+#include "shapes.h"
 #include "draw.h"
 #include "vector.h"
 
@@ -28,7 +29,7 @@ typedef enum { IDLE, DRAWING } State;
 
 Mode mode = LINES;
 State state = IDLE;
-std::vector<Vec2f> polygon_pts;
+Polygon p;
 Image *img;
 
 void change_mode(Mode m) {
@@ -46,7 +47,7 @@ void change_mode(Mode m) {
         case POLYGONS:
             mode = POLYGONS;
             state = IDLE;
-            polygon_pts.clear();
+            p = Polygon();
             printf("Mode set to polygons.\n");
             break;
         case FILL_RECURSIVE:
@@ -84,45 +85,47 @@ void display_CB()
 //------------------------------------------------------------------
 
 void mouse_CB(int button, int button_state, int x, int y) {
-    static int x1 = 0, y1 = 0;
+    static Line l = Line(Vec2i(), Vec2i());
+    static Circle c = Circle(Vec2i(), 0);
     y = y_win_to_img(img, y);
     if((button == GLUT_LEFT_BUTTON) && (button_state == GLUT_DOWN)) {
         switch(mode) {
             case LINES:
                 if(state == IDLE) {
                     state = DRAWING;
-                    x1 = x;
-                    y1 = y;
-                    printf("First point for bresenham line (%d, %d)\n", x1, y1);
+                    l.set_p1(Vec2i(x,y));
+                    printf("First point for bresenham line (%d, %d)\n", x, y);
                     break;
                 }
                 else if (state == DRAWING) {
                     state = IDLE;
-                    printf("Drawing bresenham line from (%d, %d) to (%d, %d)\n", x1, y1, x, y);
-                    draw_line_bresenham(img, x1, y1, x, y);
+                    l.set_p2(Vec2i(x,y));
+                    printf("Drawing bresenham line from (%d, %d) to (%d, %d)\n", l.p1().x(), l.p1().y(), x, y);
+                    draw_line_bresenham(img, l);
                 }
                 break;
             case CIRCLES:
                 if(state == IDLE) {
                     state = DRAWING;
-                    x1 = x;
-                    y1 = y;
-                    printf("Center for bresenham circle (%d, %d)\n", x1, y1);
+                    c.set_center(Vec2i(x,y));
+                    printf("Center for bresenham circle (%d, %d)\n", x, y);
                     break;
                 }
                 else if (state == DRAWING) {
                     state = IDLE;
-                    Vec2f R(x - x1, y - y1);
+                    Vec2i center = c.center();
+                    Vec2f R(x - center.x(), y - center.y());
                     int r = sqrt(R*R);
-                    printf("Drawing bresenham circle at center (%d, %d) with radius %d\n", x1, y1, r);
-                    draw_circle_bresenham(img, x1, y1, r);
+                    c.set_radius(r);
+                    printf("Drawing bresenham circle at center (%d, %d) with radius %d\n", center.x(), center.y(), r);
+                    draw_circle_bresenham(img, c);
                 }
                 break;
             case POLYGONS:
                 if(state == IDLE)
                     state = DRAWING;
-                polygon_pts.push_back(Vec2f(x, y));
-                printf("Polygon point n°%lu at (%d, %d)\n", polygon_pts.size(), x, y);
+                p.add_point(Vec2i(x, y));
+                printf("Polygon point n°%lu at (%d, %d)\n", p.n_points(), x, y);
                 break;
             case FILL_RECURSIVE:
                 printf("Filling recursively area at (%d, %d)\n", x, y);
@@ -154,11 +157,12 @@ void keyboard_CB(unsigned char key, int x, int y)
         case 'r': change_mode(FILL_RECURSIVE); break;
         case 13: // ENTER key
             if(mode == POLYGONS && state != IDLE) {
-                auto s = polygon_pts.size();
+                auto s = p.n_points();
                 if(s >= 2) {
-                    printf("Drawing polygon (%lu points)\n", polygon_pts.size());
-                    draw_polygon(img, polygon_pts);
-                    polygon_pts.clear();
+                    printf("Drawing polygon (%lu points)\n", s);
+                    draw_polygon(img, p);
+                    printf("Polygon is %s\n", p.is_convex() ? "convex" : "concave");
+                    p = Polygon();
                 }
                 else
                     printf("Error : polygon must have at least 2 points\n");

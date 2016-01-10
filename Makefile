@@ -15,7 +15,7 @@ EXEC=plot
 
 all: dirs $(BIN_DIR)/$(EXEC)
 
-$(BIN_DIR)/$(EXEC) : $(OBJ_DIR)/main.o $(OBJ_DIR)/Image.o $(OBJ_DIR)/Ppm.o $(OBJ_DIR)/draw.o $(OBJ_DIR)/matrix33f.o
+$(BIN_DIR)/$(EXEC) : $(OBJ_DIR)/main.o $(OBJ_DIR)/Image.o $(OBJ_DIR)/Ppm.o $(OBJ_DIR)/draw.o $(OBJ_DIR)/matrix33f.o $(OBJ_DIR)/shapes.o
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
 $(OBJ_DIR)/main.o : $(SRC_DIR)/main.c $(INCLUDE_DIR)/Image.h $(INCLUDE_DIR)/Ppm.h
@@ -28,6 +28,9 @@ $(OBJ_DIR)/Ppm.o : $(SRC_DIR)/Ppm.c $(INCLUDE_DIR)/Ppm.h
 	$(CXX) -c $< -o $@ $(CFLAGS)
 
 $(OBJ_DIR)/draw.o : $(SRC_DIR)/draw.c $(INCLUDE_DIR)/draw.h $(INCLUDE_DIR)/Image.h $(INCLUDE_DIR)/Ppm.h
+	$(CXX) -c $< -o $@ $(CFLAGS)
+
+$(OBJ_DIR)/shapes.o : $(SRC_DIR)/shapes.cpp $(INCLUDE_DIR)/shapes.h $(INCLUDE_DIR)/vector.h $(INCLUDE_DIR)/array.h
 	$(CXX) -c $< -o $@ $(CFLAGS)
 
 $(OBJ_DIR)/matrix33f.o : $(SRC_DIR)/matrix33f.cpp $(INCLUDE_DIR)/vector.h $(INCLUDE_DIR)/array.h

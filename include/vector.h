@@ -107,8 +107,8 @@ class Vec2f: public Vector<float, 2> {
             return std::inner_product(begin(), end(), other.begin(), 0.f);
         }
 
-        Vec2f operator^(Vec2f const& other) {
-            return Vec2f((*this)[0] * other[1], (*this)[1] * other[0]);
+        float operator^(Vec2f const& other) {
+            return (*this)[0] * other[1] - (*this)[1] * other[0];
         }
 
         float x() const {
@@ -127,6 +127,51 @@ class Vec2f: public Vector<float, 2> {
             return (*this)[1];
         }
 };
+
+class Vec2i: public Vector<int, 2> {
+    public:
+        Vec2i() : Vector<int, 2>() { }
+
+        Vec2i(int x, int y) : Vector<int, 2>() {
+            m_items[0] = x;
+            m_items[1] = y;
+        }
+
+        Vec2i(Vector<int,2> const& other) : Vector<int,2>(other) { }
+
+        Vec2i(Array<int,2> const& other) : Vector<int,2>(other){ }
+
+        Vec2i(int raw_array[2]) : Vector<int,2>(raw_array){ }
+
+        Vec2i(int const& item) : Vector<int,2>(item) { }
+
+        Vec2i(std::initializer_list<int> const& l) : Vector<int, 2>(l) { }
+
+        int operator*(Vec2i const& other) {
+            return std::inner_product(begin(), end(), other.begin(), 0.f);
+        }
+
+        int operator^(Vec2i const& other) {
+            return (*this)[0] * other[1] - (*this)[1] * other[0];
+        }
+
+        int x() const {
+            return (*this)[0];
+        }
+
+        int& x() {
+            return (*this)[0];
+        }
+
+        int y() const {
+            return (*this)[1];
+        }
+
+        int& y() {
+            return (*this)[1];
+        }
+};
+
 
 class Vec3f: public Vector<float, 3> {
     public:
