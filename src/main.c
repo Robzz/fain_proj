@@ -19,13 +19,29 @@
 #include "Image.h"
 #include "draw.h"
 
-typedef enum { LINES } Mode;
+typedef enum { LINES, CIRCLES } Mode;
 typedef enum { IDLE, DRAWING } State;
 
 Mode mode = LINES;
 State state = IDLE;
 Image *img;
 
+void change_mode(Mode m) {
+    switch(m) {
+        case LINES:
+            mode = LINES;
+            state = IDLE;
+            printf("Mode set to lines.\n");
+            break;
+        case CIRCLES:
+            mode = CIRCLES;
+            state = IDLE;
+            printf("Mode set to circles.\n");
+            break;
+    }
+}
+
+/* Convert window y coordinates to image y coordinates (basically Y axis inversion) */
 int y_win_to_img(const Image* img, int y) {
     return img->_height - y;
 }
@@ -55,9 +71,7 @@ void display_CB()
 void mouse_CB(int button, int button_state, int x, int y) {
     static int x1, x2, y1, y2;
     y = y_win_to_img(img, y);
-    printf("Mouse %s!\n", button_state ? "up" : "down");
     if((button == GLUT_LEFT_BUTTON) && (button_state == GLUT_DOWN)) {
-        printf("Mouse button clicked (%d, %d)\n", x, y);
         switch(mode) {
             case LINES:
                 if(state == IDLE) {
@@ -73,7 +87,19 @@ void mouse_CB(int button, int button_state, int x, int y) {
                     draw_line_bresenham(img, x1, y1, x, y);
                 }
                 break;
-            default:
+            case CIRCLES:
+                if(state == IDLE) {
+                    state = DRAWING;
+                    x1 = x;
+                    y1 = y;
+                    printf("Center for bresenham circle (%d, %d)\n", x1, y1);
+                    break;
+                }
+                else if (state == DRAWING) {
+                    state = IDLE;
+                    printf("Drawing bresenham circle at center (%d, %d) with radius %d\n", x1, y1, x);
+                    draw_line_bresenham(img, x1, y1, x, y);
+                }
                 break;
         }
     }
@@ -92,6 +118,10 @@ void keyboard_CB(unsigned char key, int x, int y)
 	switch(key)
 	{
 	case 27 : exit(1); break;
+        case 'S':
+        case 's': change_mode(LINES); break;
+        case 'C':
+        case 'c': change_mode(CIRCLES); break;
 	case 'z' : I_zoom(img,2.0); break;
 	case 'Z' : I_zoom(img,0.5); break;
 	case 'i' : I_zoomInit(img); break;
