@@ -19,7 +19,7 @@ void draw_line_bresenham(Image* img, int Ax, int Ay, int Bx, int By) {
             if(c < 0)
                 c += dy2;
             else {
-                c += dy2 - dx;
+                c += dy2 - dx2;
                 y += incy;
             }
             x += incx;
@@ -33,8 +33,8 @@ void draw_line_bresenham(Image* img, int Ax, int Ay, int Bx, int By) {
             if(c < 0)
                 c += dx2;
             else {
-                c += dx2 - dy;
-                y += incx;
+                c += dx2 - dy2;
+                x += incx;
             }
             y += incy;
             I_plot(img, x, y);

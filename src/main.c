@@ -26,6 +26,10 @@ Mode mode = LINES;
 State state = IDLE;
 Image *img;
 
+int y_win_to_img(const Image* img, int y) {
+    return img->_height - y;
+}
+
 //------------------------------------------------------------------
 //	C'est le display callback. A chaque fois qu'il faut
 //	redessiner l'image, c'est cette fonction qui est
@@ -50,27 +54,29 @@ void display_CB()
 
 void mouse_CB(int button, int button_state, int x, int y) {
     static int x1, x2, y1, y2;
+    y = y_win_to_img(img, y);
     printf("Mouse %s!\n", button_state ? "up" : "down");
-    if((button == GLUT_LEFT_BUTTON) && (button_state == GLUT_DOWN))
+    if((button == GLUT_LEFT_BUTTON) && (button_state == GLUT_DOWN)) {
         printf("Mouse button clicked (%d, %d)\n", x, y);
         switch(mode) {
             case LINES:
                 if(state == IDLE) {
                     state = DRAWING;
                     x1 = x;
-                    y1 = img->_height - y;
+                    y1 = y;
                     printf("First point for bresenham line (%d, %d)\n", x1, y1);
                     break;
                 }
                 else if (state == DRAWING) {
                     state = IDLE;
-                    printf("Drawing bresenham line from (%d, %d) to (%d, %d)\n", x1, y1, x, img->_height - y);
-                    draw_line_bresenham(img, x1, y1, x, img->_height - y);
+                    printf("Drawing bresenham line from (%d, %d) to (%d, %d)\n", x1, y1, x, y);
+                    draw_line_bresenham(img, x1, y1, x, y);
                 }
                 break;
             default:
                 break;
         }
+    }
 
     glutPostRedisplay();
 }
