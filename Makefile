@@ -6,7 +6,7 @@ SRC_DIR=src
 TESTS_SRC_DIR=tests
 INCLUDE_DIR=include
 
-CFLAGS+=-Wall -g -I$(INCLUDE_DIR)
+CFLAGS+=-Wall -g -std=c11 -I$(INCLUDE_DIR)
 TESTS_CFLAGS=$(CFLAGS)
 LDFLAGS+=-L/usr/lib -lm -lGL -lglut
 TESTS_LDFLAGS=$(LDFLAGS) 
