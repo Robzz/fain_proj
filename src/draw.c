@@ -63,6 +63,13 @@ void draw_circle_bresenham(Image* img, int Ox, int Oy, int radius) {
     }
 }
 
+void draw_polygon(Image* img, std::vector<Vec2f> const& pts) {
+    for(auto it = pts.begin() ; it+1 != pts.end() ; ++it) {
+        draw_line_bresenham(img, (*it).x(), (*it).y(), (*(it+1)).x(), (*(it+1)).y());
+    }
+    draw_line_bresenham(img, pts.front().x(), pts.front().y(), pts.back().x(), pts.back().y());
+}
+
 void seed_fill_recursive(Image* img, int x, int y, Color old, Color _new) {
     if(img->_buffer[x][y] == old) {
         img->_buffer[x][y] = _new;

@@ -14,6 +14,7 @@
 
 #include <cstdio>
 #include <cmath>
+#include <vector>
 
 #include <GL/glut.h>
 #include <GL/gl.h>
@@ -22,11 +23,12 @@
 #include "draw.h"
 #include "vector.h"
 
-typedef enum { LINES, CIRCLES, FILL_RECURSIVE } Mode;
+typedef enum { LINES, CIRCLES, POLYGONS, FILL_RECURSIVE } Mode;
 typedef enum { IDLE, DRAWING } State;
 
 Mode mode = LINES;
 State state = IDLE;
+std::vector<Vec2f> polygon_pts;
 Image *img;
 
 void change_mode(Mode m) {
@@ -40,6 +42,12 @@ void change_mode(Mode m) {
             mode = CIRCLES;
             state = IDLE;
             printf("Mode set to circles.\n");
+            break;
+        case POLYGONS:
+            mode = POLYGONS;
+            state = IDLE;
+            polygon_pts.clear();
+            printf("Mode set to polygons.\n");
             break;
         case FILL_RECURSIVE:
             mode = FILL_RECURSIVE;
@@ -76,7 +84,7 @@ void display_CB()
 //------------------------------------------------------------------
 
 void mouse_CB(int button, int button_state, int x, int y) {
-    static int x1, x2, y1, y2;
+    static int x1 = 0, y1 = 0;
     y = y_win_to_img(img, y);
     if((button == GLUT_LEFT_BUTTON) && (button_state == GLUT_DOWN)) {
         switch(mode) {
@@ -110,6 +118,12 @@ void mouse_CB(int button, int button_state, int x, int y) {
                     draw_circle_bresenham(img, x1, y1, r);
                 }
                 break;
+            case POLYGONS:
+                if(state == IDLE)
+                    state = DRAWING;
+                polygon_pts.push_back(Vec2f(x, y));
+                printf("Polygon point n°%lu at (%d, %d)\n", polygon_pts.size(), x, y);
+                break;
             case FILL_RECURSIVE:
                 printf("Filling recursively area at (%d, %d)\n", x, y);
                 seed_fill_recursive(img, x, y, img->_buffer[x][y], img->_current_color);
@@ -127,22 +141,35 @@ void mouse_CB(int button, int button_state, int x, int y) {
 
 void keyboard_CB(unsigned char key, int x, int y)
 {
-	// fprintf(stderr,"key=%d\n",key);
-	switch(key)
-	{
-	case 27 : exit(1); break;
+    // fprintf(stderr,"key=%d\n",key);
+    switch(key) {
+        case 27 : exit(1); break;
         case 'S':
         case 's': change_mode(LINES); break;
         case 'C':
         case 'c': change_mode(CIRCLES); break;
+        case 'P':
+        case 'p': change_mode(POLYGONS); break;
         case 'R':
         case 'r': change_mode(FILL_RECURSIVE); break;
-	case 'z' : I_zoom(img,2.0); break;
-	case 'Z' : I_zoom(img,0.5); break;
-	case 'i' : I_zoomInit(img); break;
-	default : fprintf(stderr,"keyboard_CB : %d : unknown key.\n",key);
-	}
-	glutPostRedisplay();
+        case 13: // ENTER key
+            if(mode == POLYGONS && state != IDLE) {
+                auto s = polygon_pts.size();
+                if(s >= 2) {
+                    printf("Drawing polygon (%lu points)\n", polygon_pts.size());
+                    draw_polygon(img, polygon_pts);
+                    polygon_pts.clear();
+                }
+                else
+                    printf("Error : polygon must have at least 2 points\n");
+            }
+            break;
+        case 'z' : I_zoom(img,2.0); break;
+        case 'Z' : I_zoom(img,0.5); break;
+        case 'i' : I_zoomInit(img); break;
+        default : fprintf(stderr,"keyboard_CB : %d : unknown key.\n",key);
+    }
+    glutPostRedisplay();
 }
 
 //------------------------------------------------------------------
