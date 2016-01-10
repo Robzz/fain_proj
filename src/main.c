@@ -17,7 +17,13 @@
 #include <GL/gl.h>
 
 #include "Image.h"
+#include "draw.h"
 
+typedef enum { LINES } Mode;
+typedef enum { IDLE, DRAWING } State;
+
+Mode mode = LINES;
+State state = IDLE;
 Image *img;
 
 //------------------------------------------------------------------
@@ -31,7 +37,7 @@ void display_CB()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-	I_draw(img);
+    I_draw(img);
 
     glutSwapBuffers();
 }
@@ -42,15 +48,31 @@ void display_CB()
 // pressé ou relaché.
 //------------------------------------------------------------------
 
-void mouse_CB(int button, int state, int x, int y)
-{
-	if((button==GLUT_LEFT_BUTTON)&&(state==GLUT_DOWN))
-		I_focusPoint(img,x,img->_height-y);
-	
-	Color c = C_new(0.0, 1.0, 0.0);
-	I_plotColor(img, x,img->_height-y,c);
-	
-	glutPostRedisplay();
+void mouse_CB(int button, int button_state, int x, int y) {
+    static int x1, x2, y1, y2;
+    printf("Mouse %s!\n", button_state ? "up" : "down");
+    if((button == GLUT_LEFT_BUTTON) && (button_state == GLUT_DOWN))
+        printf("Mouse button clicked (%d, %d)\n", x, y);
+        switch(mode) {
+            case LINES:
+                if(state == IDLE) {
+                    state = DRAWING;
+                    x1 = x;
+                    y1 = img->_height - y;
+                    printf("First point for bresenham line (%d, %d)\n", x1, y1);
+                    break;
+                }
+                else if (state == DRAWING) {
+                    state = IDLE;
+                    printf("Drawing bresenham line from (%d, %d) to (%d, %d)\n", x1, y1, x, img->_height - y);
+                    draw_line_bresenham(img, x1, y1, x, img->_height - y);
+                }
+                break;
+            default:
+                break;
+        }
+
+    glutPostRedisplay();
 }
 
 //------------------------------------------------------------------
