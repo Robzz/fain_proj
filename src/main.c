@@ -161,7 +161,8 @@ void keyboard_CB(unsigned char key, int x, int y)
                 if(s >= 2) {
                     printf("Drawing polygon (%lu points)\n", s);
                     draw_polygon(img, p);
-                    printf("Polygon is %s\n", p.is_convex() ? "convex" : "concave");
+                    printf("Polygon is %s and %s-oriented\n", p.is_convex() ? "convex" : "concave",
+                                                              (p.orientation() == Polygon::Left) ? "left" : "right");
                     p = Polygon();
                 }
                 else

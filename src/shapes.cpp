@@ -1,4 +1,5 @@
 #include "shapes.h"
+#include <limits>
 
 Line::Line(Vec2i p1, Vec2i p2) :
     m_p1(p1),
@@ -68,7 +69,9 @@ Polygon& Polygon::operator=(Polygon const& other) {
 }
 
 void Polygon::add_point(Vec2i const& p) {
-    m_pts.push_back(p);
+    // Discard the point if already the last point
+    if(m_pts.empty() || p != last())
+        m_pts.push_back(p);
 }
 
 size_t Polygon::n_points() const { return m_pts.size(); }
@@ -85,6 +88,8 @@ Vec2i Polygon::barycenter() const {
 }
 
 bool Polygon::is_convex() const {
+    /* Using an overridden local() function avoids having to recompute
+     * the barycenter for every vertex */
     Vec2i b = barycenter();
     auto sign = []  (int x) { return (x < 0) ? -1 : 1; };
     std::function<Vec2i(Vec2i)> local = [&b] (Vec2i v) { return b - v; };
@@ -98,6 +103,38 @@ bool Polygon::is_convex() const {
             return false;
     }
     return true;
+}
+
+Polygon::Orientation Polygon::orientation() const {
+    if(is_convex()) {
+        return ((local(last()) ^ local(first())) > 0) ? Left : Right;
+    }
+    else {
+        int m = std::numeric_limits<int>::max();
+        Vec2i leftmost(m, m);
+        for(auto it = begin() ; it != end() ; ++it) {
+            if((*it).x() < leftmost.x() || ((*it).x() == leftmost.x() && (*it).y() < leftmost.y()))
+                leftmost = *it;
+        }
+        Vec2i p, prev, next;
+        for(auto it = begin() ; it != end() ; ++it) {
+            if(*it == leftmost) {
+                p = *it;
+                if(it == begin()) {
+                    prev = last();
+                }
+                if(it+1 == end()) {
+                    next = first();
+                }
+            }
+        }
+        float a1 = (p.y() - prev.y()) / (p.x() - prev.x()), a2 = (p.y() - next.y())/(p.x() - next.x());
+        return (a2 < a1) ? Left : Right ;
+    }
+}
+
+Vec2i Polygon::local(Vec2i const& v) const {
+    return barycenter() - v;
 }
 
 std::vector<Vec2i>::const_iterator Polygon::begin() const { return m_pts.begin(); }

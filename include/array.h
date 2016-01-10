@@ -53,6 +53,10 @@ class Array
             return std::equal(other.begin(), other.end(), begin());
         }
 
+        bool operator!=(Array<T,size> const& other) const {
+            return !operator==(other);
+        }
+
         Array<T, size>& operator=(Array<T,size> const& other) {
             std::copy(other.begin(), other.end(), begin());
             return *this;

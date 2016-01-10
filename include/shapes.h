@@ -71,6 +71,8 @@ class Polygon {
 
     private:
     std::vector<Vec2i> m_pts;
+    /* Convert v to polygon space, centered at its barycenter */
+    Vec2i local(Vec2i const& v) const;
 };
 
 #endif
