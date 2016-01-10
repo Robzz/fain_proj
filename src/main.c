@@ -12,12 +12,15 @@
 
 \*===============================================================*/
 
-#include <stdio.h>
+#include <cstdio>
+#include <cmath>
+
 #include <GL/glut.h>
 #include <GL/gl.h>
 
 #include "Image.h"
 #include "draw.h"
+#include "vector.h"
 
 typedef enum { LINES, CIRCLES } Mode;
 typedef enum { IDLE, DRAWING } State;
@@ -97,8 +100,10 @@ void mouse_CB(int button, int button_state, int x, int y) {
                 }
                 else if (state == DRAWING) {
                     state = IDLE;
-                    printf("Drawing bresenham circle at center (%d, %d) with radius %d\n", x1, y1, x);
-                    draw_line_bresenham(img, x1, y1, x, y);
+                    Vec2f R(x - x1, y - y1);
+                    int r = sqrt(R*R);
+                    printf("Drawing bresenham circle at center (%d, %d) with radius %d\n", x1, y1, r);
+                    draw_circle_bresenham(img, x1, y1, r);
                 }
                 break;
         }
@@ -180,6 +185,7 @@ int main(int argc, char **argv)
 			Color rouge = C_new(100,0,0);
 			Color blanc = C_new(200,200,255);
 			I_checker(img,rouge,blanc,50);
+                        I_changeColor(img, C_new(0, 0, 0));
 		}
 		int windowPosX = 100, windowPosY = 100;
 

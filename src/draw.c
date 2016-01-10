@@ -1,6 +1,6 @@
 #include "draw.h"
-#include <math.h>
-
+#include <cmath>
+#include <functional>
 
 int bresenham_criteria(int x, int y, int dx, int dy) {
     return 2*(x*dy + y*dx) + 2*dy - dx;
@@ -39,5 +39,26 @@ void draw_line_bresenham(Image* img, int Ax, int Ay, int Bx, int By) {
             y += incy;
             I_plot(img, x, y);
         }
+    }
+}
+
+void draw_circle_bresenham(Image* img, int Ox, int Oy, int radius) {
+    int xc = Ox, yc = Oy, x = 0, y = radius, c = 3 - 2*radius;
+    std::function<void(int, int)> plot = [&] (int x, int y) { I_plot(img, x + xc, y + yc); };
+    plot(x, y); plot(x, -y);
+    plot(y, x); plot(y, -x);
+    while(x < y) {
+        if(c > 0) {
+            c += 4*x - 4*y + 10;
+            --y;
+        }
+        else {
+            c += 4*x + 6;   
+        }
+        ++x;
+        plot( x, y); plot( x, -y);
+        plot(-x, y); plot(-x, -y);
+        plot( y, x); plot( y, -x);
+        plot(-y, x); plot(-y, -x);
     }
 }
