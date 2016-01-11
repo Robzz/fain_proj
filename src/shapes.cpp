@@ -1,6 +1,7 @@
 #include "shapes.h"
 #include "matrix33f.h"
 #include <limits>
+#include <cmath>
 
 Line::Line(Vec2i p1, Vec2i p2) :
     m_p1(p1),
@@ -144,6 +145,19 @@ void Polygon::scale(float k) {
     Matrix33f ti = Matrix33f::newTranslation(Vec2f(b.x(), b.y()));
     Matrix33f s = Matrix33f::newScale(k);
     Matrix33f m = ti * s * t;
+    for(auto it = begin() ; it != end() ; ++it) {
+        Vec3f v((*it).x(), (*it).y(), 1);
+        v = m * v;
+        *it = Vec2i(v.x(), v.y());
+    }
+}
+
+void Polygon::rotate(Polygon::Orientation dir) {
+    Vec2i b = barycenter();
+    Matrix33f t = Matrix33f::newTranslation(Vec2f(-b.x(), -b.y()));
+    Matrix33f ti = Matrix33f::newTranslation(Vec2f(b.x(), b.y()));
+    Matrix33f r = Matrix33f::newRotation(((dir == Polygon::Left) ? 90.f : -90.f) * M_PI / 180.f);
+    Matrix33f m = ti * r * t;
     for(auto it = begin() ; it != end() ; ++it) {
         Vec3f v((*it).x(), (*it).y(), 1);
         v = m * v;

@@ -44,6 +44,8 @@ class Circle {
 
 class Polygon {
     public:
+    enum Orientation { Left, Right };
+
     /* Default constructor */
     Polygon();
 
@@ -61,6 +63,7 @@ class Polygon {
     std::vector<Vec2i>::const_iterator end() const;
 
     void scale(float k);
+    void rotate(Orientation dir);
 
     Vec2i first() const;
     Vec2i last() const;
@@ -68,8 +71,6 @@ class Polygon {
     Vec2i barycenter() const;
 
     bool is_convex() const;
-
-    enum Orientation { Left, Right };
 
     Orientation orientation() const;
 

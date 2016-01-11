@@ -207,6 +207,16 @@ void keyboard_CB(unsigned char key, int x, int y)
                 draw_polygon(canvas, p);
             }
             break;
+        case ' ':
+            if(mode == EDIT) {
+                printf("Rotating polygon\n");
+                p.rotate(Polygon::Right);
+                if(canvas)
+                    delete canvas;
+                canvas = new Image(*img);
+                draw_polygon(canvas, p);
+            }
+            break;
         case 'z' : img->zoom(2.0); break;
         case 'Z' : img->zoom(0.5); break;
         case 'i' : img->zoomInit(); break;
