@@ -21,6 +21,10 @@ bool Color::operator==(Color const& other) {
     return (_red == other._red && _green == other._green && _blue == other._blue);
 }
 
+bool Color::operator!=(Color const& other) {
+    return (_red != other._red || _green != other._green || _blue != other._blue);
+}
+
 //------------------------------------------------------------------------
 
 void C_check(Color c, char *message)
@@ -223,6 +227,30 @@ Color Image::current_color() const { return m_current_color; }
 
 Color Image::color_at(int x, int y) const { return m_buffer[x][y]; }
 
+void Image::greyscale() {
+    auto color_to_grey = [] (Color c) -> int {
+        Color cc = gamma_decompress(c);
+        double y = 0.2126*cc.red() + 0.7152*cc.green() + 0.0722*cc.blue();
+        cc = Color(y,y,y);
+        cc = gamma_compress(c);
+        return cc.red();
+    };
+    for(int x = 0 ; x != width() ; ++x)
+    for(int y = 0 ; y != height() ; ++y) {
+        double c = color_to_grey(color_at(x, y));
+        plot(x, y, Color(c, c, c));
+    }
+}
+
+void Image::threshold(Color c) {
+    for(int x = 0 ; x != width() ; ++x)
+    for(int y = 0 ; y != height() ; ++y) {
+        Color cc = color_at(x, y);
+        plot(x, y, (cc.red() >= c.red() && cc.blue() >= c.blue() && cc.green() >= c.green()) ? Color(255,255,255) :
+                                                                                               Color(0,0,0));
+    }
+}
+
 //------------------------------------------------------------------------
 // Changement de repère
 
@@ -295,3 +323,21 @@ void Image::draw() {
 }
 
 //------------------------------------------------------------------------
+//
+Color Image::gamma_compress(Color c) {
+    auto linear_to_srgb = [] (double f) -> double {
+        return (f <= 0.04045) ? f / 12.92 : pow((f + 0.055)/1.055, 2.4);
+    };
+    return Color(linear_to_srgb(static_cast<double>(c.red())/255)*255,
+                 linear_to_srgb(static_cast<double>(c.green())/255)*255,
+                 linear_to_srgb(static_cast<double>(c.blue())/255)*255);
+}
+
+Color Image::gamma_decompress(Color c) {
+    auto srgb_to_linear = [] (double f) -> double {
+        return (f <= 0.0031308) ? f * 12.92 : (pow(f, 1./2.4) * 1.055) - 0.055;
+    };
+    return Color(srgb_to_linear(static_cast<double>(c.red())/255)*255,
+                 srgb_to_linear(static_cast<double>(c.green())/255)*255,
+                 srgb_to_linear(static_cast<double>(c.blue())/255)*255);
+}

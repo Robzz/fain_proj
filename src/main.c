@@ -24,19 +24,31 @@
 #include "draw.h"
 #include "vector.h"
 
-typedef enum { LINES, CIRCLES, POLYGONS, FILL_RECURSIVE } Mode;
+typedef enum { LINES, CIRCLES, POLYGONS, FILL_RECURSIVE, FILL_SWEEP } Mode;
 typedef enum { IDLE, DRAWING, EDIT } State;
 
 Mode mode = LINES;
 State state = IDLE;
 Polygon p;
+Line l = Line(Vec2i(), Vec2i());
+Circle c = Circle(Vec2i(), 0);
 Image *img, *canvas = NULL;
 
+void overwrite_img() {
+    delete img;
+    img = canvas;
+    canvas = NULL;
+}
+
+void new_canvas() {
+    if(canvas)
+        delete canvas;
+    canvas = new Image(*img);
+}
+
 void change_mode(Mode m) {
-    if(mode == EDIT) {
-        delete img;
-        img = canvas;
-        canvas = NULL;
+    if(state == EDIT) {
+        overwrite_img();
     }
     switch(m) {
         case LINES:
@@ -58,6 +70,10 @@ void change_mode(Mode m) {
         case FILL_RECURSIVE:
             mode = FILL_RECURSIVE;
             printf("Mode set to recursive seed-fill.\n");
+            break;
+        case FILL_SWEEP:
+            mode = FILL_SWEEP;
+            printf("Mode set to sweep seed-fill.\n");
             break;
     }
 }
@@ -93,8 +109,6 @@ void display_CB()
 //------------------------------------------------------------------
 
 void mouse_CB(int button, int button_state, int x, int y) {
-    static Line l = Line(Vec2i(), Vec2i());
-    static Circle c = Circle(Vec2i(), 0);
     y = y_win_to_img(img, y);
     if((button == GLUT_LEFT_BUTTON) && (button_state == GLUT_DOWN)) {
         switch(mode) {
@@ -146,9 +160,48 @@ void mouse_CB(int button, int button_state, int x, int y) {
                 printf("Filling recursively area at (%d, %d)\n", x, y);
                 seed_fill_recursive(img, x, y, img->color_at(x, y), img->current_color());
                 break;
+            case FILL_SWEEP:
+                printf("Sweep-filling area at (%d, %d)\n", x, y);
+                seed_fill_sweep(img, x, y, img->color_at(x, y), img->current_color());
+                break;
         }
     }
 
+    glutPostRedisplay();
+}
+
+void passive_mouse_move_CB(int x, int y) {
+    Vec2i R;
+    if(state == DRAWING) {
+        switch(mode) {
+            case LINES:
+                new_canvas();
+                l.set_p2(Vec2i(x, canvas->height()-y));
+                draw_line_bresenham(canvas, l);
+                break;
+            case CIRCLES:
+                new_canvas();
+                R = Vec2i(x, y) - c.center();
+                c.set_radius(sqrt(R*R));
+                draw_circle_bresenham(canvas, c);
+                break;
+            case POLYGONS:
+                new_canvas();
+                if(p.n_points() == 1) {
+                    l.set_p1(p.first());
+                    l.set_p2(Vec2i(x, canvas->height()-y));
+                    draw_line_bresenham(canvas, l);
+                }
+                else {
+                    Polygon pp(p);
+                    pp.add_point(Vec2i(x, canvas->height() - y));
+                    draw_polygon(canvas, pp);
+                }
+                break;
+            default:
+                break;
+        }
+    }
     glutPostRedisplay();
 }
 
@@ -162,6 +215,8 @@ void keyboard_CB(unsigned char key, int x, int y)
     // fprintf(stderr,"key=%d\n",key);
     switch(key) {
         case 27 : exit(1); break;
+        case 'G':
+        case 'g': img->greyscale(); break;
         case 'S':
         case 's': change_mode(LINES); break;
         case 'C':
@@ -170,6 +225,8 @@ void keyboard_CB(unsigned char key, int x, int y)
         case 'p': change_mode(POLYGONS); break;
         case 'R':
         case 'r': change_mode(FILL_RECURSIVE); break;
+        case 'B':
+        case 'b': change_mode(FILL_SWEEP); break;
         case 13: // ENTER key
             if(mode == POLYGONS && state != IDLE) {
                 auto s = p.n_points();
@@ -188,7 +245,7 @@ void keyboard_CB(unsigned char key, int x, int y)
             }
             break;
         case '+':
-            if(mode == EDIT) {
+            if(state == EDIT) {
                 printf("Upscaling polygon\n");
                 p.scale(2);
                 if(canvas)
@@ -198,7 +255,7 @@ void keyboard_CB(unsigned char key, int x, int y)
             }
             break;
         case '-':
-            if(mode == EDIT) {
+            if(state == EDIT) {
                 printf("Downscaling polygon\n");
                 p.scale(0.5);
                 if(canvas)
@@ -208,7 +265,7 @@ void keyboard_CB(unsigned char key, int x, int y)
             }
             break;
         case ' ':
-            if(mode == EDIT) {
+            if(state == EDIT) {
                 printf("Rotating polygon\n");
                 p.rotate(Polygon::Right);
                 if(canvas)
@@ -298,8 +355,8 @@ int main(int argc, char **argv)
 		glutKeyboardFunc(keyboard_CB);
 		glutSpecialFunc(special_CB);
 		glutMouseFunc(mouse_CB);
-		// glutMotionFunc(mouse_move_CB);
-		// glutPassiveMotionFunc(passive_mouse_move_CB);
+		//glutMotionFunc(mouse_move_CB);
+		glutPassiveMotionFunc(passive_mouse_move_CB);
 
 		glutMainLoop();
 

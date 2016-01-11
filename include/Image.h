@@ -26,6 +26,7 @@ class Color {
         void set_blue(float b);
 
         bool operator==(Color const& other);
+        bool operator!=(Color const& other);
 
     private:
         float _red, _green, _blue;
@@ -48,6 +49,9 @@ class Image {
         void changeColor(Color c);
         void plot       (int x, int y);
         void plot       (int x, int y, Color c);
+
+        void greyscale();
+        void threshold(Color c);
 
         void focusPoint (int x, int y);
         void zoomInit   ();
@@ -74,6 +78,9 @@ class Image {
 	double m_zoom;
 	Color m_current_color;
 	Color** m_buffer;
+
+        static Color gamma_compress(Color c);
+        static Color gamma_decompress(Color c);
 
         Image& operator=(Image const& other);
 };

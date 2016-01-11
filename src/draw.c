@@ -79,7 +79,7 @@ void draw_polygon(Image* img, Polygon const& p) {
 }
 
 void seed_fill_recursive(Image* img, int x, int y, Color old, Color _new) {
-    if(img->color_at(x, y) == old) {
+    if(img->color_at(x, y) == old && old != _new) {
         img->plot(x, y, _new);
         seed_fill_recursive(img, x+1, y    , old, _new);
         seed_fill_recursive(img, x-1, y    , old, _new);
@@ -88,3 +88,30 @@ void seed_fill_recursive(Image* img, int x, int y, Color old, Color _new) {
     }
 }
 
+void seed_fill_sweep(Image* img, int x, int y, Color old, Color _new) {
+    enum Direction { Left, Right };
+    auto sweep = [&img, &old, &_new] (int x, int y, Direction d) {
+        int X = (d == Left) ? x-1 : x+1;
+        while(X >= 0 && X < img->width() && img->color_at(X, y) == old) {
+            img->plot(X, y);
+            if(y >= 1 &&
+               img->color_at((d == Left) ? X+1 : X-1, y) == old && 
+               img->color_at((d == Left) ? X+1 : X-1, y-1) != old) {
+                seed_fill_sweep(img, X, y-1, old, _new);
+            }
+            if(y+1 < img->height() &&
+               img->color_at((d == Left) ? X+1 : X-1, y) == old && 
+               img->color_at((d == Left) ? X+1 : X-1, y+1) != old) {
+                seed_fill_sweep(img, X, y+1, old, _new);
+            }
+            X += (d == Left) ? -1 : 1;
+        }
+    };
+    if(img->color_at(x,y) == old) {
+        img->plot(x, y, _new);
+        sweep(x, y, Left);
+        sweep(x, y, Right);
+        seed_fill_sweep(img, x, y-1, old, _new);
+        seed_fill_sweep(img, x, y+1, old, _new);
+    }
+}

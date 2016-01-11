@@ -13,5 +13,6 @@ void draw_circle_bresenham(Image* img, Circle const& c);
 void draw_polygon(Image* img, Polygon const& p);
 
 void seed_fill_recursive(Image* img, int x, int y, Color old, Color _new);
+void seed_fill_sweep(Image* img, int x, int y, Color old, Color _new);
 
 #endif
