@@ -50,20 +50,23 @@ void change_mode(Mode m) {
     if(state == EDIT) {
         overwrite_img();
     }
+    else if(state == DRAWING) {
+        delete canvas;
+        canvas = NULL;
+        glutPostRedisplay();
+    }
+    state = IDLE;
     switch(m) {
         case LINES:
             mode = LINES;
-            state = IDLE;
             printf("Mode set to lines.\n");
             break;
         case CIRCLES:
             mode = CIRCLES;
-            state = IDLE;
             printf("Mode set to circles.\n");
             break;
         case POLYGONS:
             mode = POLYGONS;
-            state = IDLE;
             p = Polygon();
             printf("Mode set to polygons.\n");
             break;
@@ -214,7 +217,12 @@ void keyboard_CB(unsigned char key, int x, int y)
 {
     // fprintf(stderr,"key=%d\n",key);
     switch(key) {
-        case 27 : exit(1); break;
+        case 27 : 
+            if(canvas)
+                delete canvas;
+            delete img;
+            exit(1);
+            break;
         case 'G':
         case 'g': img->greyscale(); break;
         case 'S':
@@ -329,8 +337,8 @@ int main(int argc, char **argv)
 			largeur = atoi(argv[1]);
 			hauteur = atoi(argv[2]);
 			img = new Image(largeur,hauteur);
-			Color rouge(100,0,0);
-			Color blanc(200,200,255);
+			Color rouge(0.5,0,0);
+			Color blanc(0.8,0.8,1);
 			img->checker(rouge,blanc,50);
                         img->changeColor(Color(0, 0, 0));
 		}

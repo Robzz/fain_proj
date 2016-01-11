@@ -107,7 +107,7 @@ void seed_fill_sweep(Image* img, int x, int y, Color old, Color _new) {
             X += (d == Left) ? -1 : 1;
         }
     };
-    if(img->color_at(x,y) == old) {
+    if(img->color_at(x,y) == old && old != _new) {
         img->plot(x, y, _new);
         sweep(x, y, Left);
         sweep(x, y, Right);

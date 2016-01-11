@@ -11,3 +11,4 @@ obj/*
 bin/*
 .ycm*
 *.tar.gz
+images
