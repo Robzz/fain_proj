@@ -51,7 +51,7 @@ class Image {
         void plot       (int x, int y, Color c);
 
         void greyscale();
-        void threshold(Color c);
+        void threshold(double d);
 
         void focusPoint (int x, int y);
         void zoomInit   ();
@@ -70,6 +70,9 @@ class Image {
         Color current_color() const;
 
         Color color_at(int x, int y) const;
+
+        bool is_binary() const;
+        int n_connected_components() const;
 
     private:
 	int m_width, m_height;

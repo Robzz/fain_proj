@@ -13,6 +13,7 @@
 \*===============================================================*/
 
 #include <cstdio>
+#include <iostream>
 #include <cmath>
 #include <vector>
 
@@ -225,6 +226,15 @@ void keyboard_CB(unsigned char key, int x, int y)
             break;
         case 'G':
         case 'g': img->greyscale(); break;
+        case 'O':
+        case 'o': printf("Number of connected components : %d\n", img->n_connected_components()); break;
+        case 'W':
+        case 'w':
+            double d;
+            std::cout << "Threshold value (0-1, negative = auto) : ";
+            std::cin >> d;
+            img->threshold(d);
+            break;
         case 'S':
         case 's': change_mode(LINES); break;
         case 'C':

@@ -5,7 +5,9 @@
 \*====================================================*/
 
 #include "Image.h"
+#include "draw.h"
 #include <cstring>
+#include <stdexcept>
 
 Color::Color(float r, float g, float b) :
     _red(r),
@@ -242,12 +244,13 @@ void Image::greyscale() {
     }
 }
 
-void Image::threshold(Color c) {
+void Image::threshold(double d) {
+    greyscale();
     for(int x = 0 ; x != width() ; ++x)
     for(int y = 0 ; y != height() ; ++y) {
-        Color cc = color_at(x, y);
-        plot(x, y, (cc.red() >= c.red() && cc.blue() >= c.blue() && cc.green() >= c.green()) ? Color(1,1,1) :
-                                                                                               Color(0,0,0));
+        Color c = color_at(x, y);
+        plot(x, y, (c.red() >= d && c.blue() >= d && c.green() >= d ? Color(1,1,1) :
+                                                                      Color(0,0,0)));
     }
 }
 
@@ -320,6 +323,34 @@ void Image::draw() {
         glVertex2i(xwin,ywin);
     }
     glEnd();
+}
+
+bool Image::is_binary() const {
+    for(int x=0 ; x < m_width ; ++x)
+    for(int y=0 ; y < m_height; ++y) {
+        Color c = color_at(x, y);
+        if(c != Color(0,0,0) && c != Color(1,1,1))
+            return false;
+    }
+    return true;
+}
+
+int Image::n_connected_components() const {
+    if(!is_binary())
+        throw std::runtime_error("The image is not binary");
+    int n = 0;
+    Image copy(*this);
+    Color fill_color(0.5,0,0);
+    for(int x=0 ; x < copy.m_width ; ++x)
+    for(int y=0 ; y < copy.m_height; ++y) {
+        Color c = copy.color_at(x, y);
+        if(c != fill_color) {
+            seed_fill_sweep(&copy, x, y, c, fill_color);
+            ++n;
+        }
+
+    }
+    return n;
 }
 
 //------------------------------------------------------------------------
