@@ -35,32 +35,44 @@ void C_check(Color c, char *message);
 
 //-----------------------------------------------------
 
-typedef struct
-{
-	int _width, _height;
-	int _xzoom, _yzoom;
-	int _xoffset, _yoffset;
-	double _zoom;
-	Color _current_color;
-	Color **_buffer;
-} Image;
+class Image {
+    public:
+        Image(int _width, int _height);
+        static Image* read(char *ppmfilename);
 
-Image* I_new(int _width, int _height);
-Image* I_read(char *ppmfilename);
+        void fill       (Color c);
+        void checker    (Color c1, Color c2, int step);
 
-void I_fill       (Image *img, Color c);
-void I_checker    (Image *img, Color c1, Color c2, int step);
+        void changeColor(Color c);
+        void plot       (int x, int y);
+        void plot       (int x, int y, Color c);
 
-void I_changeColor(Image *img, Color c);
-void I_plot       (Image *img, int x, int y);
-void I_plotColor  (Image *img, int x, int y, Color c);
+        void focusPoint (int x, int y);
+        void zoomInit   ();
+        void zoom       (double zoom_coef);
+        void move       (int x, int y);
 
-void I_focusPoint (Image *img, int x, int y);
-void I_zoomInit   (Image *img);
-void I_zoom       (Image *img, double zoom_coef);
-void I_move       (Image *img, int x, int y);
+        void draw       ();
 
-void I_draw       (Image *img);
+        int width() const;
+        int height() const;
+        int x_zoom() const;
+        int y_zoom() const;
+        int x_offset() const;
+        int y_offset() const;
+        int zoom() const;
+        Color current_color() const;
+
+        Color color_at(int x, int y) const;
+
+    private:
+	int m_width, m_height;
+	int m_xzoom, m_yzoom;
+	int m_xoffset, m_yoffset;
+	double m_zoom;
+	Color m_current_color;
+	Color** m_buffer;
+};
 
 #endif
 

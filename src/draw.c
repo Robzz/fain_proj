@@ -11,7 +11,7 @@ void draw_line_bresenham(Image* img, int Ax, int Ay, int Bx, int By) {
     int incx = (Bx > Ax) ? 1 : -1,
         incy = (By > Ay) ? 1 : -1;
     int x = Ax, y = Ay;
-    I_plot(img, x, y);
+    img->plot(x, y);
     if(dx > dy) {
         // Pente inférieure à 1 
         int c = dy2 - dx;
@@ -23,7 +23,7 @@ void draw_line_bresenham(Image* img, int Ax, int Ay, int Bx, int By) {
                 y += incy;
             }
             x += incx;
-            I_plot(img, x, y);
+            img->plot(x, y);
         }
     }
     else {
@@ -37,7 +37,7 @@ void draw_line_bresenham(Image* img, int Ax, int Ay, int Bx, int By) {
                 x += incx;
             }
             y += incy;
-            I_plot(img, x, y);
+            img->plot(x, y);
         }
     }
 }
@@ -48,7 +48,7 @@ void draw_line_bresenham(Image* img, Line const& l) {
 
 void draw_circle_bresenham(Image* img, int Ox, int Oy, int radius) {
     int xc = Ox, yc = Oy, x = 0, y = radius, c = 3 - 2*radius;
-    std::function<void(int, int)> plot = [&] (int x, int y) { I_plot(img, x + xc, y + yc); };
+    std::function<void(int, int)> plot = [&] (int x, int y) { img->plot(x + xc, y + yc); };
     plot(x, y); plot(x, -y);
     plot(y, x); plot(y, -x);
     while(x < y) {
@@ -79,8 +79,8 @@ void draw_polygon(Image* img, Polygon const& p) {
 }
 
 void seed_fill_recursive(Image* img, int x, int y, Color old, Color _new) {
-    if(img->_buffer[x][y] == old) {
-        img->_buffer[x][y] = _new;
+    if(img->color_at(x, y) == old) {
+        img->plot(x, y, _new);
         seed_fill_recursive(img, x+1, y    , old, _new);
         seed_fill_recursive(img, x-1, y    , old, _new);
         seed_fill_recursive(img, x  , y + 1, old, _new);

@@ -21,7 +21,7 @@ $(BIN_DIR)/$(EXEC) : $(OBJ_DIR)/main.o $(OBJ_DIR)/Image.o $(OBJ_DIR)/Ppm.o $(OBJ
 $(OBJ_DIR)/main.o : $(SRC_DIR)/main.c $(INCLUDE_DIR)/Image.h $(INCLUDE_DIR)/Ppm.h
 	$(CXX) -c $< -o $@ $(CFLAGS)
 
-$(OBJ_DIR)/Image.o : $(SRC_DIR)/Image.c $(INCLUDE_DIR)/Image.h $(INCLUDE_DIR)/Ppm.h
+$(OBJ_DIR)/Image.o : $(SRC_DIR)/Image.cpp $(INCLUDE_DIR)/Image.h $(INCLUDE_DIR)/Ppm.h
 	$(CXX) -c $< -o $@ $(CFLAGS)
 
 $(OBJ_DIR)/Ppm.o : $(SRC_DIR)/Ppm.c $(INCLUDE_DIR)/Ppm.h

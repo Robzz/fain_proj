@@ -30,7 +30,7 @@ typedef enum { IDLE, DRAWING, EDIT } State;
 Mode mode = LINES;
 State state = IDLE;
 Polygon p;
-Image *img;
+Image *img, *canvas;
 
 void change_mode(Mode m) {
     switch(m) {
@@ -59,7 +59,7 @@ void change_mode(Mode m) {
 
 /* Convert window y coordinates to image y coordinates (basically Y axis inversion) */
 int y_win_to_img(const Image* img, int y) {
-    return img->_height - y;
+    return img->height() - y;
 }
 
 //------------------------------------------------------------------
@@ -73,7 +73,7 @@ void display_CB()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    I_draw(img);
+    img->draw();
 
     glutSwapBuffers();
 }
@@ -131,7 +131,7 @@ void mouse_CB(int button, int button_state, int x, int y) {
                 break;
             case FILL_RECURSIVE:
                 printf("Filling recursively area at (%d, %d)\n", x, y);
-                seed_fill_recursive(img, x, y, img->_buffer[x][y], img->_current_color);
+                seed_fill_recursive(img, x, y, img->color_at(x, y), img->current_color());
                 break;
         }
     }
@@ -185,9 +185,9 @@ void keyboard_CB(unsigned char key, int x, int y)
                 draw_polygon(img, p);
             }
             break;
-        case 'z' : I_zoom(img,2.0); break;
-        case 'Z' : I_zoom(img,0.5); break;
-        case 'i' : I_zoomInit(img); break;
+        case 'z' : img->zoom(2.0); break;
+        case 'Z' : img->zoom(0.5); break;
+        case 'i' : img->zoomInit(); break;
         default : fprintf(stderr,"keyboard_CB : %d : unknown key.\n",key);
     }
     glutPostRedisplay();
@@ -207,10 +207,10 @@ void special_CB(int key, int x, int y)
 
 	switch(key)
 	{
-	case GLUT_KEY_UP    : I_move(img,0,d); break;
-	case GLUT_KEY_DOWN  : I_move(img,0,-d); break;
-	case GLUT_KEY_LEFT  : I_move(img,d,0); break;
-	case GLUT_KEY_RIGHT : I_move(img,-d,0); break;
+	case GLUT_KEY_UP    : img->move(0,d); break;
+	case GLUT_KEY_DOWN  : img->move(0,-d); break;
+	case GLUT_KEY_LEFT  : img->move(d,0); break;
+	case GLUT_KEY_RIGHT : img->move(-d,0); break;
 	default : fprintf(stderr,"special_CB : %d : unknown key.\n",key);
 	}
 	glutPostRedisplay();
@@ -231,19 +231,19 @@ int main(int argc, char **argv)
 		int largeur, hauteur;
 		if(argc==2)
 		{
-			img = I_read(argv[1]);
-			largeur = img->_width;
-			hauteur = img->_height;
+			img = Image::read(argv[1]);
+			largeur = img->width();
+			hauteur = img->height();
 		}
 		else
 		{
 			largeur = atoi(argv[1]);
 			hauteur = atoi(argv[2]);
-			img = I_new(largeur,hauteur);
+			img = new Image(largeur,hauteur);
 			Color rouge(100,0,0);
 			Color blanc(200,200,255);
-			I_checker(img,rouge,blanc,50);
-                        I_changeColor(img, Color(0, 0, 0));
+			img->checker(rouge,blanc,50);
+                        img->changeColor(Color(0, 0, 0));
 		}
 		int windowPosX = 100, windowPosY = 100;
 
