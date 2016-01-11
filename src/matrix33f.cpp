@@ -94,7 +94,10 @@ Matrix33f Matrix33f::newScale(const Vec2f &v) {
 }
 
 Matrix33f Matrix33f::newScale(float f) {
-    return Matrix33f(f);
+    Matrix33f m = Matrix33f::identity();
+    m[0][0] *= f;
+    m[1][1] *= f;
+    return m;
 }
 
 Matrix33f& Matrix33f::rotate(float rad_angle) {

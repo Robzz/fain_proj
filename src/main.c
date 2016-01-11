@@ -25,7 +25,7 @@
 #include "vector.h"
 
 typedef enum { LINES, CIRCLES, POLYGONS, FILL_RECURSIVE } Mode;
-typedef enum { IDLE, DRAWING } State;
+typedef enum { IDLE, DRAWING, EDIT } State;
 
 Mode mode = LINES;
 State state = IDLE;
@@ -122,8 +122,10 @@ void mouse_CB(int button, int button_state, int x, int y) {
                 }
                 break;
             case POLYGONS:
-                if(state == IDLE)
+                if(state == IDLE || state == EDIT) {
+                    p = Polygon();
                     state = DRAWING;
+                }
                 p.add_point(Vec2i(x, y));
                 printf("Polygon point n°%lu at (%d, %d)\n", p.n_points(), x, y);
                 break;
@@ -163,10 +165,24 @@ void keyboard_CB(unsigned char key, int x, int y)
                     draw_polygon(img, p);
                     printf("Polygon is %s and %s-oriented\n", p.is_convex() ? "convex" : "concave",
                                                               (p.orientation() == Polygon::Left) ? "left" : "right");
-                    p = Polygon();
                 }
                 else
                     printf("Error : polygon must have at least 2 points\n");
+                state = EDIT;
+            }
+            break;
+        case '+':
+            if(mode == EDIT) {
+                printf("Upscaling polygon\n");
+                p.scale(2);
+                draw_polygon(img, p);
+            }
+            break;
+        case '-':
+            if(mode == EDIT) {
+                printf("Downscaling polygon\n");
+                p.scale(0.5);
+                draw_polygon(img, p);
             }
             break;
         case 'z' : I_zoom(img,2.0); break;

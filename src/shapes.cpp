@@ -1,4 +1,5 @@
 #include "shapes.h"
+#include "matrix33f.h"
 #include <limits>
 
 Line::Line(Vec2i p1, Vec2i p2) :
@@ -137,5 +138,20 @@ Vec2i Polygon::local(Vec2i const& v) const {
     return barycenter() - v;
 }
 
+void Polygon::scale(float k) {
+    Vec2i b = barycenter();
+    Matrix33f t = Matrix33f::newTranslation(Vec2f(-b.x(), -b.y()));
+    Matrix33f ti = Matrix33f::newTranslation(Vec2f(b.x(), b.y()));
+    Matrix33f s = Matrix33f::newScale(k);
+    Matrix33f m = ti * s * t;
+    for(auto it = begin() ; it != end() ; ++it) {
+        Vec3f v((*it).x(), (*it).y(), 1);
+        v = m * v;
+        *it = Vec2i(v.x(), v.y());
+    }
+}
+
+std::vector<Vec2i>::iterator Polygon::begin() { return m_pts.begin(); }
 std::vector<Vec2i>::const_iterator Polygon::begin() const { return m_pts.begin(); }
+std::vector<Vec2i>::iterator Polygon::end() { return m_pts.end(); }
 std::vector<Vec2i>::const_iterator Polygon::end() const { return m_pts.end(); }

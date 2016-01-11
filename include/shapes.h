@@ -55,8 +55,12 @@ class Polygon {
     void add_point(Vec2i const& p);
     size_t n_points() const;
 
+    std::vector<Vec2i>::iterator begin();
     std::vector<Vec2i>::const_iterator begin() const;
+    std::vector<Vec2i>::iterator end();
     std::vector<Vec2i>::const_iterator end() const;
+
+    void scale(float k);
 
     Vec2i first() const;
     Vec2i last() const;

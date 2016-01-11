@@ -34,6 +34,10 @@ class Vector: public Array<T, size> {
             return binary_op(*this, other, [] (T t1, T t2) { return t1 - t2; });
         }
 
+        Vector operator-() const {
+            return unary_op(*this, [] (T t1) { return -t1; });
+        }
+
         Vector& operator-=(Vector const& other) {
             binary_op_in_place(*this, other, [] (T t1, T t2) { return t1 - t2; });
             return *this;
