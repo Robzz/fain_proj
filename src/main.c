@@ -30,9 +30,14 @@ typedef enum { IDLE, DRAWING, EDIT } State;
 Mode mode = LINES;
 State state = IDLE;
 Polygon p;
-Image *img, *canvas;
+Image *img, *canvas = NULL;
 
 void change_mode(Mode m) {
+    if(mode == EDIT) {
+        delete img;
+        img = canvas;
+        canvas = NULL;
+    }
     switch(m) {
         case LINES:
             mode = LINES;
@@ -73,7 +78,10 @@ void display_CB()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    img->draw();
+    if(canvas)
+        canvas->draw();
+    else
+        img->draw();
 
     glutSwapBuffers();
 }
@@ -123,6 +131,11 @@ void mouse_CB(int button, int button_state, int x, int y) {
                 break;
             case POLYGONS:
                 if(state == IDLE || state == EDIT) {
+                    if(state == EDIT) {
+                        delete img;
+                        img = canvas;
+                        canvas = NULL;
+                    }
                     p = Polygon();
                     state = DRAWING;
                 }
@@ -162,7 +175,10 @@ void keyboard_CB(unsigned char key, int x, int y)
                 auto s = p.n_points();
                 if(s >= 2) {
                     printf("Drawing polygon (%lu points)\n", s);
-                    draw_polygon(img, p);
+                    if(canvas)
+                        delete canvas;
+                    canvas = new Image(*img);
+                    draw_polygon(canvas, p);
                     printf("Polygon is %s and %s-oriented\n", p.is_convex() ? "convex" : "concave",
                                                               (p.orientation() == Polygon::Left) ? "left" : "right");
                 }
@@ -175,14 +191,20 @@ void keyboard_CB(unsigned char key, int x, int y)
             if(mode == EDIT) {
                 printf("Upscaling polygon\n");
                 p.scale(2);
-                draw_polygon(img, p);
+                if(canvas)
+                    delete canvas;
+                canvas = new Image(*img);
+                draw_polygon(canvas, p);
             }
             break;
         case '-':
             if(mode == EDIT) {
                 printf("Downscaling polygon\n");
                 p.scale(0.5);
-                draw_polygon(img, p);
+                if(canvas)
+                    delete canvas;
+                canvas = new Image(*img);
+                draw_polygon(canvas, p);
             }
             break;
         case 'z' : img->zoom(2.0); break;

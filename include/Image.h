@@ -38,6 +38,8 @@ void C_check(Color c, char *message);
 class Image {
     public:
         Image(int _width, int _height);
+        Image(Image const& other);
+        ~Image();
         static Image* read(char *ppmfilename);
 
         void fill       (Color c);
@@ -72,6 +74,8 @@ class Image {
 	double m_zoom;
 	Color m_current_color;
 	Color** m_buffer;
+
+        Image& operator=(Image const& other);
 };
 
 #endif

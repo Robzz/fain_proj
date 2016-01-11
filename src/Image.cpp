@@ -5,6 +5,7 @@
 \*====================================================*/
 
 #include "Image.h"
+#include <cstring>
 
 Color::Color(float r, float g, float b) :
     _red(r),
@@ -42,29 +43,53 @@ Image::Image(int width, int height) :
     m_current_color(Color(255,255,255)),
     m_buffer(new Color*[width])
 {
-    for(int x=0;x<width;x++)
-    m_buffer[x] = new Color[height];
+    for(int x = 0 ; x < width ; ++x)
+        m_buffer[x] = new Color[height];
+}
+
+Image::Image(Image const& other) :
+    m_width(other.m_width),
+    m_height(other.m_height),
+    m_xzoom(other.m_xzoom),
+    m_yzoom(other.m_yzoom),
+    m_xoffset(other.m_xoffset),
+    m_yoffset(other.m_yoffset),
+    m_zoom(other.m_zoom),
+    m_current_color(other.m_current_color),
+    m_buffer(new Color*[m_width])
+{
+    for(int x = 0 ; x < m_width ; ++x) {
+        m_buffer[x] = new Color[m_height];
+        memcpy(m_buffer[x], other.m_buffer[x], m_height * sizeof(Color));
+    }
+}
+
+Image::~Image() {
+    for(int x = 0 ; x != m_height ; ++x) {
+        delete[] m_buffer[x];
+    }
+    delete[] m_buffer;
 }
 
 //------------------------------------------------------------------------
 
 //-----
 
-static int _isPpm(char *imagefilename)
-{
-        FILE *imagefile;
-        imagefile = fopen(imagefilename,"r");
-        if(imagefile==NULL) {perror(imagefilename); exit(1); }
+static int _isPpm(char *imagefilename) {
+    FILE *imagefile;
+    imagefile = fopen(imagefilename,"r");
+    if(imagefile==NULL) {perror(imagefilename); exit(1); }
 
+    else {
+        int c1 = fgetc(imagefile);
+        int c2 = fgetc(imagefile);
+        fclose(imagefile);
+
+        if((c1=='P')&&(c2=='6')) 
+            return 1;
         else
-        {
-                int c1 = fgetc(imagefile);
-                int c2 = fgetc(imagefile);
-                fclose(imagefile);
-
-                if((c1=='P')&&(c2=='6'))        return 1;
-                else                                            return 0;
-        }
+            return 0;
+    }
 }
 
 //-----
